@@ -15,7 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "packages": ["packages/src/index.ts"]
+      "@along-puppyspa/shared": ["packages/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

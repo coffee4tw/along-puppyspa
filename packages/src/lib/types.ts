@@ -10,6 +10,7 @@ export interface Puppy {
   name: string;
   breed: string;
   age: number;
+  ownerId: string;
   notes?: string;
 }
 
@@ -22,9 +23,9 @@ export interface Service {
 
 export interface WaitingListEntry {
   id: string;
-  owner: Owner;
-  puppy: Puppy;
-  service: Service;
+  ownerId: string;
+  puppyId: string;
+  serviceId: string;
   arrivalTime: string; // ISO date string
   status: 'waiting' | 'in-progress' | 'completed' | 'cancelled';
   notes?: string;
