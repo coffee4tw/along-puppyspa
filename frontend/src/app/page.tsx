@@ -1,4 +1,5 @@
 import DailyWaitingLists from './components/daily-waiting-lists';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -12,6 +13,14 @@ export default function Home() {
           <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
             Welcome to the Puppy Spa waiting list management system. Here you can manage appointments and track the status of your furry clients.
           </p>
+          <div className="mt-6">
+            <Link
+              href="/search"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+            >
+              Search Service History
+            </Link>
+          </div>
         </div>
 
         <DailyWaitingLists />

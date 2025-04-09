@@ -230,4 +230,38 @@ export class SupabaseService {
       entries: []
     };
   }
+
+  async searchWaitingListEntries(query: string) {
+    // First find matching puppies
+    const { data: puppies, error: puppyError } = await this.supabase
+      .from('puppies')
+      .select('id')
+      .ilike('name', `%${query}%`);
+
+    if (puppyError) throw puppyError;
+
+    // Then find matching owners
+    const { data: owners, error: ownerError } = await this.supabase
+      .from('owners')
+      .select('id')
+      .ilike('name', `%${query}%`);
+
+    if (ownerError) throw ownerError;
+
+    // Get waiting list entries for matching puppies or owners
+    const { data, error } = await this.supabase
+      .from('waiting_list')
+      .select(`
+        *,
+        owner:owners(*),
+        puppy:puppies(*),
+        service:services(*),
+        daily_list:daily_waiting_lists(date)
+      `)
+      .or(`puppy_id.in.(${(puppies?.map(p => p.id) || []).join(',')}),owner_id.in.(${(owners?.map(o => o.id) || []).join(',')})`)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  }
 } 

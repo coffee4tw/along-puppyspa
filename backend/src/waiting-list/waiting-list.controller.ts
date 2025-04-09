@@ -1,10 +1,10 @@
-import { Controller, Post, Body, Get, Param, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Query } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
-import { Owner, Puppy, Service, WaitingListEntry } from '@along-puppyspa/shared';
+import { WaitingListEntry, Owner, Puppy } from '@along-puppyspa/shared';
 
 interface CreateWaitingListEntryDto {
   owner: Omit<Owner, 'id'>;
-  puppy: Omit<Puppy, 'id' | 'ownerId'>;
+  puppy: Omit<Puppy, 'id' | 'owner_id'>;
   serviceId: string;
   notes?: string;
   dailyListId?: string;
@@ -43,6 +43,11 @@ export class WaitingListController {
   @Get()
   async getWaitingList() {
     return this.supabaseService.getWaitingList();
+  }
+
+  @Get('search')
+  async searchEntries(@Query('q') query: string) {
+    return this.supabaseService.searchWaitingListEntries(query);
   }
 
   @Get(':id')
