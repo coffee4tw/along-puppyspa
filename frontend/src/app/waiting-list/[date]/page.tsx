@@ -20,6 +20,7 @@ export default function WaitingListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [reordering, setReordering] = useState(false);
 
   const fetchDailyList = async (targetDate: string) => {
     try {
@@ -73,6 +74,53 @@ export default function WaitingListPage() {
     fetchDailyList(date);
   };
 
+  const moveEntry = async (entryId: string, direction: 'up' | 'down') => {
+    if (!dailyList) return;
+
+    const entry = dailyList.entries.find(e => e.id === entryId);
+    if (!entry) return;
+
+    const currentIndex = dailyList.entries.findIndex(e => e.id === entryId);
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+    if (newIndex < 0 || newIndex >= dailyList.entries.length) return;
+
+    try {
+      // Swap positions
+      const updatedEntries = [...dailyList.entries];
+      const tempPosition = updatedEntries[currentIndex].position;
+      updatedEntries[currentIndex].position = updatedEntries[newIndex].position;
+      updatedEntries[newIndex].position = tempPosition;
+
+      // Update the entries in the database
+      await fetch(`http://localhost:3000/api/waiting-list/${entryId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ position: updatedEntries[currentIndex].position }),
+      });
+
+      await fetch(`http://localhost:3000/api/waiting-list/${updatedEntries[newIndex].id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ position: updatedEntries[newIndex].position }),
+      });
+
+      // Update local state
+      setDailyList({
+        ...dailyList,
+        entries: updatedEntries.sort((a, b) => a.position - b.position),
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to reorder entries');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -103,12 +151,24 @@ export default function WaitingListPage() {
             })}
           </p>
         </div>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-        >
-          Add New Entry
-        </button>
+        <div className="space-x-4">
+          <button
+            onClick={() => setReordering(!reordering)}
+            className={`px-4 py-2 rounded font-medium ${
+              reordering 
+                ? 'bg-green-500 hover:bg-green-600 text-white' 
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+            }`}
+          >
+            {reordering ? 'Done Reordering' : 'Reorder List'}
+          </button>
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+          >
+            Add New Entry
+          </button>
+        </div>
       </div>
 
       {showAddForm && (
@@ -136,7 +196,7 @@ export default function WaitingListPage() {
         <div className="text-center text-gray-500">No entries in the waiting list for this date</div>
       ) : (
         <div className="grid gap-4">
-          {dailyList.entries.map((entry) => (
+          {dailyList.entries.map((entry, index) => (
             <div
               key={entry.id}
               className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
@@ -155,18 +215,46 @@ export default function WaitingListPage() {
                     <p className="text-sm text-gray-500 mt-2">Notes: {entry.notes}</p>
                   )}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className={`px-2 py-1 rounded text-sm ${
-                    entry.status === 'waiting' ? 'bg-yellow-100 text-yellow-800' :
-                    entry.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
-                    entry.status === 'completed' ? 'bg-green-100 text-green-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {entry.status}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    Position: {entry.position}
-                  </span>
+                <div className="flex items-center space-x-4">
+                  {reordering && (
+                    <div className="flex flex-col space-y-2">
+                      <button
+                        onClick={() => moveEntry(entry.id, 'up')}
+                        disabled={index === 0}
+                        className={`p-2 rounded ${
+                          index === 0 
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                            : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                        }`}
+                      >
+                        ↑
+                      </button>
+                      <button
+                        onClick={() => moveEntry(entry.id, 'down')}
+                        disabled={index === dailyList.entries.length - 1}
+                        className={`p-2 rounded ${
+                          index === dailyList.entries.length - 1
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                            : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                        }`}
+                      >
+                        ↓
+                      </button>
+                    </div>
+                  )}
+                  <div className="flex items-center space-x-2">
+                    <span className={`px-2 py-1 rounded text-sm ${
+                      entry.status === 'waiting' ? 'bg-yellow-100 text-yellow-800' :
+                      entry.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
+                      entry.status === 'completed' ? 'bg-green-100 text-green-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {entry.status}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      Position: {entry.position}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
