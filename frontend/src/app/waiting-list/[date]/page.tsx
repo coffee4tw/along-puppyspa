@@ -176,11 +176,11 @@ export default function WaitingListPage() {
   ) || [];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Waiting List</h1>
-          <p className="text-gray-500 mt-2">
+          <h1>Waiting List</h1>
+          <p className="mt-2">
             {new Date(date).toLocaleDateString('en-US', {
               weekday: 'long',
               year: 'numeric',
@@ -189,30 +189,30 @@ export default function WaitingListPage() {
             })}
           </p>
         </div>
-        <div className="space-x-4">
+        <div className="flex space-x-4">
           <button
             onClick={() => setReordering(!reordering)}
-            className={`px-4 py-2 rounded font-medium ${
+            className={`btn ${
               reordering 
-                ? 'bg-green-500 hover:bg-green-600 text-white' 
-                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                ? 'btn-primary' 
+                : 'btn-secondary'
             }`}
           >
             {reordering ? 'Done Reordering' : 'Reorder List'}
           </button>
           <button
             onClick={() => setShowCompleted(!showCompleted)}
-            className={`px-4 py-2 rounded font-medium ${
+            className={`btn ${
               showCompleted 
-                ? 'bg-blue-500 hover:bg-blue-600 text-white' 
-                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                ? 'btn-primary' 
+                : 'btn-secondary'
             }`}
           >
             {showCompleted ? 'Hide Completed' : 'Show Completed'}
           </button>
           <button
             onClick={() => setShowAddForm(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+            className="btn-primary"
           >
             Add New Entry
           </button>
@@ -221,21 +221,19 @@ export default function WaitingListPage() {
 
       {showAddForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold">Add New Entry</h2>
-                <button
-                  onClick={() => setShowAddForm(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <AddEntryForm onSuccess={handleAddSuccess} dailyListId={dailyList?.id} />
+          <div className="card max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2>Add New Entry</h2>
+              <button
+                onClick={() => setShowAddForm(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
+            <AddEntryForm onSuccess={handleAddSuccess} dailyListId={dailyList?.id} />
           </div>
         </div>
       )}
@@ -247,7 +245,7 @@ export default function WaitingListPage() {
           {filteredEntries.map((entry, index) => (
             <div
               key={entry.id}
-              className={`bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow ${
+              className={`card hover:shadow-md transition-shadow ${
                 entry.status === 'completed' ? 'opacity-75' : ''
               }`}
             >
@@ -257,30 +255,34 @@ export default function WaitingListPage() {
                     type="checkbox"
                     checked={entry.status === 'completed'}
                     onChange={() => toggleEntryStatus(entry.id, entry.status)}
-                    className="mt-1 h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
+                    className="mt-1 h-5 w-5 text-primary-600 rounded focus:ring-primary-500"
                   />
                   <div>
-                    <h3 className="text-lg font-semibold">{entry.puppy?.name}</h3>
-                    <p className="text-gray-500">{entry.puppy?.breed}</p>
-                    <p className="text-sm text-gray-500">
-                      Owner: {entry.owner?.name} ({entry.owner?.phone})
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Service: {entry.service?.name}
-                    </p>
+                    <h3 className="text-lg font-semibold">{entry.puppy?.name || 'Unknown Puppy'}</h3>
+                    <p className="text-gray-500">{entry.puppy?.breed || 'Unknown Breed'}</p>
+                    <p className="text-sm text-gray-500">Owner: {entry.owner?.name || 'Unknown Owner'}</p>
+                    <p className="text-sm text-gray-500">Service: {entry.service?.name || 'Unknown Service'}</p>
                     {entry.notes && (
-                      <p className="text-sm text-gray-500 mt-2">Notes: {entry.notes}</p>
+                      <p className="text-sm text-gray-500 mt-1">Notes: {entry.notes}</p>
                     )}
                   </div>
                 </div>
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <span className={`px-2 py-1 rounded text-sm ${
+                    entry.status === 'waiting' ? 'bg-yellow-100 text-yellow-800' :
+                    entry.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
+                    entry.status === 'completed' ? 'bg-green-100 text-green-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    {entry.status}
+                  </span>
                   {reordering && (
-                    <div className="flex flex-col space-y-2">
+                    <div className="flex flex-col space-y-1">
                       <button
                         onClick={() => moveEntry(entry.id, 'up')}
                         disabled={index === 0}
                         className={`p-2 rounded ${
-                          index === 0 
+                          index === 0
                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
                             : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
                         }`}
@@ -300,19 +302,6 @@ export default function WaitingListPage() {
                       </button>
                     </div>
                   )}
-                  <div className="flex items-center space-x-2">
-                    <span className={`px-2 py-1 rounded text-sm ${
-                      entry.status === 'waiting' ? 'bg-yellow-100 text-yellow-800' :
-                      entry.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
-                      entry.status === 'completed' ? 'bg-green-100 text-green-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {entry.status}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      Position: {entry.position}
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
