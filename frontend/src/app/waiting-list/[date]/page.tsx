@@ -21,6 +21,7 @@ export default function WaitingListPage() {
   const [error, setError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [reordering, setReordering] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(true);
 
   const fetchDailyList = async (targetDate: string) => {
     try {
@@ -121,6 +122,39 @@ export default function WaitingListPage() {
     }
   };
 
+  const toggleEntryStatus = async (entryId: string, currentStatus: string) => {
+    if (!dailyList) return;
+
+    try {
+      const newStatus = currentStatus === 'completed' ? 'waiting' : 'completed';
+      
+      const response = await fetch(`http://localhost:3000/api/waiting-list/${entryId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update entry status');
+      }
+
+      // Update local state
+      setDailyList({
+        ...dailyList,
+        entries: dailyList.entries.map(entry => 
+          entry.id === entryId 
+            ? { ...entry, status: newStatus }
+            : entry
+        ),
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update entry status');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -136,6 +170,10 @@ export default function WaitingListPage() {
       </div>
     );
   }
+
+  const filteredEntries = dailyList?.entries.filter(entry => 
+    showCompleted || entry.status !== 'completed'
+  ) || [];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -161,6 +199,16 @@ export default function WaitingListPage() {
             }`}
           >
             {reordering ? 'Done Reordering' : 'Reorder List'}
+          </button>
+          <button
+            onClick={() => setShowCompleted(!showCompleted)}
+            className={`px-4 py-2 rounded font-medium ${
+              showCompleted 
+                ? 'bg-blue-500 hover:bg-blue-600 text-white' 
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+            }`}
+          >
+            {showCompleted ? 'Hide Completed' : 'Show Completed'}
           </button>
           <button
             onClick={() => setShowAddForm(true)}
@@ -192,28 +240,38 @@ export default function WaitingListPage() {
         </div>
       )}
 
-      {!dailyList?.entries || dailyList.entries.length === 0 ? (
+      {filteredEntries.length === 0 ? (
         <div className="text-center text-gray-500">No entries in the waiting list for this date</div>
       ) : (
         <div className="grid gap-4">
-          {dailyList.entries.map((entry, index) => (
+          {filteredEntries.map((entry, index) => (
             <div
               key={entry.id}
-              className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+              className={`bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow ${
+                entry.status === 'completed' ? 'opacity-75' : ''
+              }`}
             >
               <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-lg font-semibold">{entry.puppy?.name}</h3>
-                  <p className="text-gray-500">{entry.puppy?.breed}</p>
-                  <p className="text-sm text-gray-500">
-                    Owner: {entry.owner?.name} ({entry.owner?.phone})
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Service: {entry.service?.name}
-                  </p>
-                  {entry.notes && (
-                    <p className="text-sm text-gray-500 mt-2">Notes: {entry.notes}</p>
-                  )}
+                <div className="flex items-start space-x-4">
+                  <input
+                    type="checkbox"
+                    checked={entry.status === 'completed'}
+                    onChange={() => toggleEntryStatus(entry.id, entry.status)}
+                    className="mt-1 h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <div>
+                    <h3 className="text-lg font-semibold">{entry.puppy?.name}</h3>
+                    <p className="text-gray-500">{entry.puppy?.breed}</p>
+                    <p className="text-sm text-gray-500">
+                      Owner: {entry.owner?.name} ({entry.owner?.phone})
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Service: {entry.service?.name}
+                    </p>
+                    {entry.notes && (
+                      <p className="text-sm text-gray-500 mt-2">Notes: {entry.notes}</p>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center space-x-4">
                   {reordering && (
@@ -231,9 +289,9 @@ export default function WaitingListPage() {
                       </button>
                       <button
                         onClick={() => moveEntry(entry.id, 'down')}
-                        disabled={index === dailyList.entries.length - 1}
+                        disabled={index === filteredEntries.length - 1}
                         className={`p-2 rounded ${
-                          index === dailyList.entries.length - 1
+                          index === filteredEntries.length - 1
                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
                             : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
                         }`}
