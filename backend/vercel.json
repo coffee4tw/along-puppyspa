@@ -8,11 +8,5 @@
   "env": {
     "NODE_ENV": "production",
     "IS_SERVERLESS": "true"
-  },
-  "functions": {
-    "api/**/*.ts": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
   }
 } 
