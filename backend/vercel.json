@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "buildCommand": "npx nx build backend",
+  "outputDirectory": "dist/backend",
+  "framework": "nodejs",
+  "installCommand": "npm install",
+  "regions": ["iad1"],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "api/**/*.ts": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
+} 

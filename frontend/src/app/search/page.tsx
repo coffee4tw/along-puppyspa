@@ -29,7 +29,7 @@ export default function SearchPage() {
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:3000/api/waiting-list/search?q=${encodeURIComponent(term)}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/waiting-list/search?q=${encodeURIComponent(term)}`, {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',

@@ -25,7 +25,7 @@ export default function WaitingListPage() {
 
   const fetchDailyList = async (targetDate: string) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/daily-waiting-list/${targetDate}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/daily-waiting-list/${targetDate}`, {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export default function WaitingListPage() {
       if (!response.ok) {
         if (response.status === 404) {
           // Create the list if it doesn't exist
-          const createResponse = await fetch('http://localhost:3000/api/daily-waiting-list', {
+          const createResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/daily-waiting-list`, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -94,7 +94,7 @@ export default function WaitingListPage() {
       updatedEntries[newIndex].position = tempPosition;
 
       // Update the entries in the database
-      await fetch(`http://localhost:3000/api/waiting-list/${entryId}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/waiting-list/${entryId}`, {
         method: 'PUT',
         credentials: 'include',
         headers: {
@@ -103,7 +103,7 @@ export default function WaitingListPage() {
         body: JSON.stringify({ position: updatedEntries[currentIndex].position }),
       });
 
-      await fetch(`http://localhost:3000/api/waiting-list/${updatedEntries[newIndex].id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/waiting-list/${updatedEntries[newIndex].id}`, {
         method: 'PUT',
         credentials: 'include',
         headers: {
@@ -128,7 +128,7 @@ export default function WaitingListPage() {
     try {
       const newStatus = currentStatus === 'completed' ? 'waiting' : 'completed';
       
-      const response = await fetch(`http://localhost:3000/api/waiting-list/${entryId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/waiting-list/${entryId}`, {
         method: 'PUT',
         credentials: 'include',
         headers: {

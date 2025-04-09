@@ -12,7 +12,7 @@ export default function DailyWaitingLists() {
   useEffect(() => {
     const fetchLists = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/daily-waiting-list', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/daily-waiting-list`, {
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ export default function DailyWaitingLists() {
 
   const handleCreateTodayList = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/daily-waiting-list', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/daily-waiting-list`, {
         method: 'POST',
         credentials: 'include',
         headers: {

@@ -24,7 +24,7 @@ export default function WaitingListPage() {
 
   const fetchDailyList = async (targetDate: string) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/daily-waiting-list/${targetDate}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/daily-waiting-list/${targetDate}`, {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ export default function WaitingListPage() {
       if (!response.ok) {
         if (response.status === 404) {
           // Create the list if it doesn't exist
-          const createResponse = await fetch('http://localhost:3000/api/daily-waiting-list', {
+          const createResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/daily-waiting-list`, {
             method: 'POST',
             credentials: 'include',
             headers: {
