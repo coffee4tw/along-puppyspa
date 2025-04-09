@@ -2,11 +2,12 @@
   "version": 2,
   "buildCommand": "npx nx build backend",
   "outputDirectory": "dist/backend",
-  "framework": "nodejs",
+  "framework": "nextjs",
   "installCommand": "npm install",
   "regions": ["iad1"],
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "IS_SERVERLESS": "true"
   },
   "functions": {
     "api/**/*.ts": {
