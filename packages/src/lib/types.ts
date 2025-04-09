@@ -3,6 +3,8 @@ export interface Owner {
   name: string;
   email: string;
   phone: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Puppy {
@@ -10,27 +12,36 @@ export interface Puppy {
   name: string;
   breed: string;
   age: number;
-  ownerId: string;
   notes?: string;
+  owner_id: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Service {
   id: string;
   name: string;
-  description: string;
-  estimatedDuration: number; // in minutes
+  description?: string;
+  estimated_duration: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface WaitingListEntry {
   id: string;
-  ownerId: string;
-  puppyId: string;
-  serviceId: string;
-  arrivalTime: string; // ISO date string
+  owner_id: string;
+  puppy_id: string;
+  service_id: string;
+  arrival_time: string;
   status: 'waiting' | 'in-progress' | 'completed' | 'cancelled';
   notes?: string;
-  completedAt?: string; // ISO date string
+  completed_at?: string;
   position: number;
+  created_at: string;
+  updated_at: string;
+  owner?: Owner;
+  puppy?: Puppy;
+  service?: Service;
 }
 
 export interface DailyWaitingList {

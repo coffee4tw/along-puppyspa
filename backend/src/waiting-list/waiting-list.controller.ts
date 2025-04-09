@@ -21,16 +21,18 @@ export class WaitingListController {
     // Then create the puppy with the owner's ID
     const puppy = await this.supabaseService.createPuppy({
       ...dto.puppy,
-      ownerId: owner.id
+      owner_id: owner.id
     });
 
     // Finally create the waiting list entry
     const entry = await this.supabaseService.createWaitingListEntry({
-      ownerId: owner.id,
-      puppyId: puppy.id,
-      serviceId: dto.serviceId,
+      owner_id: owner.id,
+      puppy_id: puppy.id,
+      service_id: dto.serviceId,
       notes: dto.notes,
-      arrivalTime: new Date().toISOString()
+      arrival_time: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     });
 
     return entry;
