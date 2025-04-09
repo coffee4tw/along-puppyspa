@@ -2,7 +2,6 @@
   "version": 2,
   "buildCommand": "npx nx build backend",
   "outputDirectory": "dist/backend",
-  "framework": "nextjs",
   "installCommand": "npm install",
   "regions": ["iad1"],
   "env": {
