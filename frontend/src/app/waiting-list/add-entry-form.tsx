@@ -5,9 +5,10 @@ import { Owner, Puppy, Service } from '@along-puppyspa/shared';
 
 interface AddEntryFormProps {
   onSuccess: () => void;
+  dailyListId?: string;
 }
 
-export default function AddEntryForm({ onSuccess }: AddEntryFormProps) {
+export default function AddEntryForm({ onSuccess, dailyListId }: AddEntryFormProps) {
   const [owner, setOwner] = useState<Omit<Owner, 'id'>>({
     name: '',
     email: '',
@@ -71,6 +72,7 @@ export default function AddEntryForm({ onSuccess }: AddEntryFormProps) {
           puppy,
           serviceId,
           notes,
+          dailyListId,
         }),
       });
 
@@ -98,7 +100,6 @@ export default function AddEntryForm({ onSuccess }: AddEntryFormProps) {
       setServiceId(services[0]?.id || '');
       setNotes('');
       
-      // Notify parent of success
       onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -109,10 +110,15 @@ export default function AddEntryForm({ onSuccess }: AddEntryFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Owner Information */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Owner Information</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <h3 className="text-lg font-medium">Owner Information</h3>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-gray-700">Name</label>
             <input
@@ -146,10 +152,9 @@ export default function AddEntryForm({ onSuccess }: AddEntryFormProps) {
         </div>
       </div>
 
-      {/* Puppy Information */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Puppy Information</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <h3 className="text-lg font-medium">Puppy Information</h3>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-gray-700">Name</label>
             <input
@@ -181,21 +186,20 @@ export default function AddEntryForm({ onSuccess }: AddEntryFormProps) {
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Notes</label>
-          <textarea
-            value={puppy.notes}
-            onChange={(e) => setPuppy({ ...puppy, notes: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            rows={3}
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Notes</label>
+            <textarea
+              value={puppy.notes}
+              onChange={(e) => setPuppy({ ...puppy, notes: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              rows={2}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Service Selection */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Service Selection</h3>
+        <h3 className="text-lg font-medium">Service Information</h3>
         <div>
           <label className="block text-sm font-medium text-gray-700">Service</label>
           <select
@@ -211,28 +215,29 @@ export default function AddEntryForm({ onSuccess }: AddEntryFormProps) {
             ))}
           </select>
         </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Additional Notes</label>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            rows={3}
+          />
+        </div>
       </div>
 
-      {/* Additional Notes */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Additional Notes</label>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          rows={3}
-        />
-      </div>
-
-      {error && (
-        <div className="text-red-500 text-sm">{error}</div>
-      )}
-
-      <div className="flex justify-end">
+      <div className="flex justify-end space-x-3">
+        <button
+          type="button"
+          onClick={() => onSuccess()}
+          className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Cancel
+        </button>
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
+          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
         >
           {loading ? 'Creating...' : 'Create Entry'}
         </button>

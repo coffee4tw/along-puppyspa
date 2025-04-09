@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { SUPABASE_CLIENT } from './supabase.constants';
 import { SupabaseClient } from '@supabase/supabase-js';
-import { Owner, Puppy, Service, WaitingListEntry } from '@along-puppyspa/shared';
+import { Owner, Puppy, Service, WaitingListEntry, DailyWaitingList } from '@along-puppyspa/shared';
 
 @Injectable()
 export class SupabaseService {
@@ -149,5 +149,85 @@ export class SupabaseService {
       .eq('id', id);
 
     if (error) throw error;
+  }
+
+  async getDailyWaitingLists(): Promise<DailyWaitingList[]> {
+    const { data, error } = await this.supabase
+      .from('daily_waiting_lists')
+      .select('*')
+      .order('date', { ascending: false });
+
+    if (error) throw error;
+    
+    // Get all waiting list entries for each daily list
+    const listsWithEntries = await Promise.all(
+      (data || []).map(async (list) => {
+        const { data: entries, error: entriesError } = await this.supabase
+          .from('waiting_list')
+          .select(`
+            *,
+            owner:owners(*),
+            puppy:puppies(*),
+            service:services(*)
+          `)
+          .eq('daily_list_id', list.id)
+          .order('position', { ascending: true });
+
+        if (entriesError) throw entriesError;
+
+        return {
+          ...list,
+          entries: entries || []
+        };
+      })
+    );
+
+    return listsWithEntries;
+  }
+
+  async getDailyWaitingList(date: string): Promise<DailyWaitingList | null> {
+    const { data, error } = await this.supabase
+      .from('daily_waiting_lists')
+      .select('*')
+      .eq('date', date)
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "no rows returned"
+    if (!data) return null;
+
+    // Get waiting list entries for this daily list
+    const { data: entries, error: entriesError } = await this.supabase
+      .from('waiting_list')
+      .select(`
+        *,
+        owner:owners(*),
+        puppy:puppies(*),
+        service:services(*)
+      `)
+      .eq('daily_list_id', data.id)
+      .order('position', { ascending: true });
+
+    if (entriesError) throw entriesError;
+
+    return {
+      ...data,
+      entries: entries || []
+    };
+  }
+
+  async createDailyWaitingList(dailyList: Omit<DailyWaitingList, 'id'>): Promise<DailyWaitingList> {
+    // Create the daily waiting list without entries
+    const { data, error } = await this.supabase
+      .from('daily_waiting_lists')
+      .insert({ date: dailyList.date })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return {
+      ...data,
+      entries: []
+    };
   }
 } 

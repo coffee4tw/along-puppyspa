@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SupabaseModule } from '../supabase/supabase.module';
 import { WaitingListModule } from '../waiting-list/waiting-list.module';
+import { DailyWaitingListModule } from '../daily-waiting-list/daily-waiting-list.module';
 import { ServicesModule } from '../services/services.module';
 
 @Module({
@@ -13,6 +14,7 @@ import { ServicesModule } from '../services/services.module';
     }),
     SupabaseModule,
     WaitingListModule,
+    DailyWaitingListModule,
     ServicesModule,
   ],
   controllers: [AppController],

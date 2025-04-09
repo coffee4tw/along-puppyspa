@@ -32,6 +32,7 @@ export interface WaitingListEntry {
   owner_id: string;
   puppy_id: string;
   service_id: string;
+  daily_list_id?: string;
   arrival_time: string;
   status: 'waiting' | 'in-progress' | 'completed' | 'cancelled';
   notes?: string;

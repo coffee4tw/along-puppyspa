@@ -7,6 +7,7 @@ interface CreateWaitingListEntryDto {
   puppy: Omit<Puppy, 'id' | 'ownerId'>;
   serviceId: string;
   notes?: string;
+  dailyListId?: string;
 }
 
 @Controller('waiting-list')
@@ -30,6 +31,7 @@ export class WaitingListController {
       puppy_id: puppy.id,
       service_id: dto.serviceId,
       notes: dto.notes,
+      daily_list_id: dto.dailyListId,
       arrival_time: new Date().toISOString(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()

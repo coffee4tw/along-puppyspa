@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { WaitingListEntry, Owner, Puppy, Service, DailyWaitingList } from '@along-puppyspa/shared';
-import AddEntryForm from './add-entry-form';
+import AddEntryForm from '../add-entry-form';
 
 interface WaitingListEntryWithDetails extends WaitingListEntry {
   owner: Owner;
@@ -14,13 +14,12 @@ interface WaitingListEntryWithDetails extends WaitingListEntry {
 export default function WaitingListPage() {
   const params = useParams();
   const router = useRouter();
-  const date = params.date as string || new Date().toISOString().split('T')[0];
+  const date = params.date as string;
   
   const [dailyList, setDailyList] = useState<DailyWaitingList | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(date);
 
   const fetchDailyList = async (targetDate: string) => {
     try {
@@ -69,27 +68,9 @@ export default function WaitingListPage() {
     fetchDailyList(date);
   }, [date]);
 
-  useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    router.push(`/waiting-list/${today}`);
-  }, [router]);
-
   const handleAddSuccess = () => {
     setShowAddForm(false);
     fetchDailyList(date);
-  };
-
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newDate = e.target.value;
-    setSelectedDate(newDate);
-    router.push(`/waiting-list/${newDate}`);
-  };
-
-  const navigateToDate = (days: number) => {
-    const currentDate = new Date(date);
-    currentDate.setDate(currentDate.getDate() + days);
-    const newDate = currentDate.toISOString().split('T')[0];
-    router.push(`/waiting-list/${newDate}`);
   };
 
   if (loading) {
@@ -113,26 +94,6 @@ export default function WaitingListPage() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold">Waiting List</h1>
-          <div className="flex items-center space-x-4 mt-2">
-            <button
-              onClick={() => navigateToDate(-1)}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              ← Previous Day
-            </button>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={handleDateChange}
-              className="border rounded px-3 py-1"
-            />
-            <button
-              onClick={() => navigateToDate(1)}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              Next Day →
-            </button>
-          </div>
           <p className="text-gray-500 mt-2">
             {new Date(date).toLocaleDateString('en-US', {
               weekday: 'long',
