@@ -130,8 +130,6 @@ graph TD;
       ]
     }
     ```
-- **Status:**
-  - The backend is live, effectively handling all API requests and connecting to the managed Supabase database for CRUD operations.
 
 ---
 
