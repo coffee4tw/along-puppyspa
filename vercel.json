@@ -1,7 +1,7 @@
 {
   "version": 2,
   "buildCommand": "npx nx build frontend",
-  "outputDirectory": "dist/apps/frontend",
+  "outputDirectory": "dist/frontend/.next",
   "framework": "nextjs",
   "installCommand": "npm install",
   "regions": ["iad1"],
