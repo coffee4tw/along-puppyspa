@@ -139,6 +139,10 @@ graph TD;
 
 As the Puppy Spa Waiting List Management App evolves, several enhancements could be implemented to further improve functionality and scalability:
 
+- **Puppy/Owner Reuse:**
+  - *Puppy Search:*  
+    On creation of new entries, add the ability to search for already existing owners and/or puppies instead of creating new ones.
+
 - **Multi-Worker Support:**
   - *Concurrent Waiting Lists:*  
     Support for multiple spa workers operating concurrently, each with their own waiting list. This would allow the application to manage parallel service queues if multiple workers handle different areas of the spa.
